@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VP Password Control Panel</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .box {
+      background: #0a1a1a;
+      border: 2px solid #00ffea;
+      border-radius: 16px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 25px rgba(0,255,234,0.4);
+    }
+    h2 { text-align: center; color: #00ffea; margin-bottom: 20px; }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    input { background: #111; color: #fff; border: 1px solid #00ffea; }
+    button {
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .current {
+      background: #111;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 15px;
+      border: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>VP Password Control</h2>
+    
+    <div class="current">
+      বর্তমান পাসওয়ার্ড: <strong id="currentPass">লোড হচ্ছে...</strong>
+    </div>
+
+    <input type="text" id="newPass" placeholder="নতুন পাসওয়ার্ড লিখুন">
+    <button onclick="changePassword()">পাসওয়ার্ড চেঞ্জ করুন</button>
+  </div>
+
+  <script>
+    // ↓↓↓ এখানে তোমার নিজের Firebase কনফিগ বসাও ↓↓↓
+    const firebaseConfig = {
+      apiKey: "তোমার-apiKey",
+      databaseURL: "https://তোমার-project.firebaseio.com",
+      projectId: "তোমার-projectId"
+    };
+    // ↑↑↑ Firebase Console থেকে নিয়ে বসাবে ↑↑↑
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // বর্তমান পাসওয়ার্ড দেখানো
+    db.ref('vp_hack/password').on('value', (snap) => {
+      const pass = snap.val();
+      document.getElementById('currentPass').textContent = pass || "সেট করা নেই";
+    });
+
+    function changePassword() {
+      const newPass = document.getElementById('newPass').value.trim();
+      if (!newPass) {
+        alert("পাসওয়ার্ড লিখুন!");
+        return;
+      }
+      db.ref('vp_hack/password').set(newPass)
+        .then(() => {
+          alert("✅ পাসওয়ার্ড সফলভাবে চেঞ্জ হয়েছে!");
+          document.getElementById('newPass').value = "";
+        })
+        .catch(err => alert("Error: " + err.message));
+    }
+  </script>
+</body>
+</html>
+const MAIN_PASSWORD = "017728";// পুরনো লাইন মুছে ফেলো
+// const MAIN_PASSWORD = "017728";
+
+let MAIN_PASSWORD = null;
+
+// Firebase থেকে পাসওয়ার্ড লোড করা
+const firebaseConfig = {
+  apiKey: "তোমার-apiKey",          // Admin প্যানেলের সাথে একই
+  databaseURL: "https://তোমার-project.firebaseio.com",
+  projectId: "তোমার-projectId"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+db.ref('vp_hack/password').on('value', (snap) => {
+  MAIN_PASSWORD = snap.val();
+  console.log("Password updated from server");
+});function unlockWith(password){
+  if(!MAIN_PASSWORD){
+    msg.textContent = "পাসওয়ার্ড লোড হচ্ছে... একটু অপেক্ষা করুন";
+    return;
+  }
+  if(password === MAIN_PASSWORD){
+    showSite(MAIN_URL);
+    lock.style.display = "none";
+    return;
+  }
+  msg.textContent = "Wrong password";
+  input.value = "";
+  input.focus();
+}
